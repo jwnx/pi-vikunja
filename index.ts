@@ -93,11 +93,8 @@ async function vikunjaFetch(
 
 function assertConfigured() {
   if (!VIKUNJA_URL) throw new Error("VIKUNJA_URL is not configured.");
-  if (!VIKUNJA_TOKEN) {
-    throw new Error(
-      "VIKUNJA_TOKEN is not configured. Set the environment variable before using Vikunja tools."
-    );
-  }
+  // VIKUNJA_TOKEN is optional — some deployments (e.g. Sprites connectors)
+  // handle auth at a proxy/gateway layer without a bearer token.
 }
 
 function formatTask(t: VikunjaTask): string {
@@ -136,7 +133,6 @@ export default function (pi: ExtensionAPI) {
     async execute(_toolCallId, _params, signal) {
       const issues: string[] = [];
       if (!VIKUNJA_URL) issues.push("VIKUNJA_URL is not set.");
-      if (!VIKUNJA_TOKEN) issues.push("VIKUNJA_TOKEN is not set (checked env and auth.json).");
       if (issues.length) {
         return {
           content: [{ type: "text", text: `Not configured:\n- ${issues.join("\n- ")}` }],
@@ -281,10 +277,6 @@ export default function (pi: ExtensionAPI) {
   pi.registerCommand("vikunja-todos", {
     description: "List open Vikunja tasks",
     handler: async (args, ctx) => {
-      if (!VIKUNJA_TOKEN) {
-        ctx.ui.notify("VIKUNJA_TOKEN not set", "error");
-        return;
-      }
       try {
         const data = await vikunjaFetch("/tasks?per_page=20");
         let tasks: VikunjaTask[] = Array.isArray(data) ? data : ((data as any).tasks || []);
