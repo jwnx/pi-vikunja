@@ -1,0 +1,29 @@
+{
+  "name": "pi-vikunja",
+  "version": "1.0.0",
+  "description": "Vikunja task management extension for pi — list, create, and update tasks via the Vikunja API",
+  "keywords": [
+    "pi-package",
+    "vikunja",
+    "todo",
+    "task-manager"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jwnx/pi-vikunja.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jwnx/pi-vikunja/issues"
+  },
+  "homepage": "https://github.com/jwnx/pi-vikunja#readme",
+  "pi": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  }
+}
