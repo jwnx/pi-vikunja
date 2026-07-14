@@ -127,6 +127,38 @@ export default function (pi: ExtensionAPI) {
     },
   });
 
+  // ── Tool: Status ────────────────────────────────────────────
+  pi.registerTool({
+    name: "vikunja_status",
+    label: "Vikunja Status",
+    description: "Check Vikunja connectivity and authentication.",
+    parameters: Type.Object({}),
+    async execute(_toolCallId, _params, signal) {
+      const issues: string[] = [];
+      if (!VIKUNJA_URL) issues.push("VIKUNJA_URL is not set.");
+      if (!VIKUNJA_TOKEN) issues.push("VIKUNJA_TOKEN is not set (checked env and auth.json).");
+      if (issues.length) {
+        return {
+          content: [{ type: "text", text: `Not configured:\n- ${issues.join("\n- ")}` }],
+          details: { configured: false, issues },
+        };
+      }
+      try {
+        const data = await vikunjaFetch("/projects", {}, signal);
+        const projects: VikunjaProject[] = Array.isArray(data) ? data : ((data as any).projects || []);
+        return {
+          content: [{ type: "text", text: `Connected to ${VIKUNJA_URL}. ${projects.length} project(s) found.` }],
+          details: { configured: true, connected: true, projects: projects.length },
+        };
+      } catch (err: any) {
+        return {
+          content: [{ type: "text", text: `Connection failed: ${err.message}` }],
+          details: { configured: true, connected: false, error: err.message },
+        };
+      }
+    },
+  });
+
   // ── Tool: List Tasks ─────────────────────────────────────────
   pi.registerTool({
     name: "vikunja_list_tasks",
